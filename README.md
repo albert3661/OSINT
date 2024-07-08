@@ -25,3 +25,27 @@ Clonez le dépôt et installez les dépendances :
 git clone https://github.com/albert3661/OSINT.git
 cd OSINT
 npm install
+
+Utilisation
+Démarrer le serveur de développement
+bash
+Copier le code
+npm start
+Accéder à l'application
+Ouvrez votre navigateur et allez à http://localhost:3000
+
+API
+Récupérer des données de start-ups
+bash
+Copier le code
+GET /api/startup
+
+Obtenir des conseils d'investissement
+bash
+Copier le code
+GET /api/advice
+
+Structure du Projet
+src/ : Contient le code source de l'application.
+public/ : Fichiers statiques.
+api/ : Points d'accès API pour les données des start-ups et conseils d'investissement.
