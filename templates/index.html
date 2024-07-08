@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Incubateurs et accélérateurs de start-up en Île-de-France</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 0;
+            padding: 10px 0;
+            background-color: #ba5511;
+            color: #ffffff;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        #nav-bar {
+            width: 250px;
+            background-color: #333;
+            color: white;
+            height: 100vh;
+            padding-top: 60px;
+            box-sizing: border-box;
+            position: fixed;
+            top: 0;
+            left: -250px;
+            transition: transform 0.3s ease-in-out;
+        }
+        #nav-bar.open {
+            transform: translateX(250px);
+        }
+        #nav-header {
+            padding: 10px;
+            text-align: center;
+        }
+        #nav-header a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.5em;
+        }
+        #nav-content {
+            padding: 10px;
+        }
+        .nav-button {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            color: white;
+            text-decoration: none;
+            font-size: 1.1em;
+        }
+        .nav-button i {
+            margin-right: 10px;
+        }
+        .nav-button:hover {
+            background-color: #575757;
+        }
+        #nav-footer {
+            padding: 10px;
+            position: absolute;
+            bottom: 0;
+            width: 250px;
+        }
+        #nav-footer-avatar img {
+            border-radius: 50%;
+            width: 20px;
+            height: 50px;
+        }
+        #nav-footer-titlebox {
+            margin-left: 10px;
+        }
+        #mapContainer {
+            flex-grow: 1;
+            margin-top: 60px;
+            padding: 0;
+            box-sizing: border-box;
+            margin-left: 0;
+            transition: margin-left 0.3s ease-in-out;
+        }
+        #map {
+            width: 100%;
+            height: calc(100vh - 60px);
+            border: none;
+        }
+        .menu-item {
+            margin-bottom: 10px;
+        }
+        .menu-item button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background: #ba5511;
+            color: white;
+            cursor: pointer;
+            text-align: left;
+        }
+        .menu-item button:hover {
+            background: #ba5511;
+        }
+        .info-box {
+            margin-top: 20px;
+        }
+        .info-box h2 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        .info-box p {
+            margin: 5px 0;
+        }
+        .toggle-menu {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: #ba5511;
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        /* Media Queries pour petits écrans */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            #nav-bar {
+                position: fixed;
+                top: 0;
+                left: -250px;
+                width: 250px;
+                height: 100%;
+                transform: translateX(-100%);
+            }
+            #mapContainer {
+                margin-left: 0;
+                margin-top: 60px;
+            }
+            #nav-bar.open {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Incubateurs et accélérateurs de start-up en Île-de-France</h1>
+
+    <div class="toggle-menu" onclick="toggleNavBar()">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <!-- Barre de navigation latérale -->
+    <div id="nav-bar">
+        <div id="nav-header">
+            <i class="fas fa-map"></i> CARTE
+            <hr>
+        </div>
+        <div id="nav-content">
+            <a class="nav-button" href="#" onclick="fetchStartupInfo()"><i class="fas fa-rocket"></i><span>Incubateurs & Startup</span></a>
+            <a class="nav-button" href="#" onclick="fetchInvestmentAdvice()"><i class="fas fa-hand-holding-usd"></i><span>Conseil d'investissement</span></a>
+            <a class="nav-button" href="#"><i class="fas fa-sign-in-alt"></i><span>Connexion</span></a>
+            <a class="nav-button" href="#"><i class="fas fa-user-plus"></i><span>Créer un compte</span></a>
+            <hr>
+            
+            
+        </div>
+        <div id="nav-footer">
+            <a class="nav-button" href="#"><i class="fas fa-comment-dots"></i><span>Avis</span></a>
+        </div>
+    </div>
+
+    <div id="mapContainer">
+        <iframe id="map" src="https://data.iledefrance.fr/explore/embed/dataset/incubateurs-accelerateurs/map/?basemap=mbs-5ffe02&location=8,48.63109,2.12311&hideAttribution=true" width="100%" height="100%" frameborder="0"></iframe>
+    </div>
+
+    <script>
+        function toggleNavBar() {
+            var navBar = document.getElementById('nav-bar');
+            navBar.classList.toggle('open');
+        }
+
+        async function fetchStartupInfo() {
+    try {
+        const response = await fetch('/api/startup');
+        const data = await response.json();
+        displayBubble(data.content);
+    } catch (error) {
+        console.error('Erreur lors de la récupération des informations de la startup :', error);
+    }
+}
+
+async function fetchInvestmentAdvice() {
+    try {
+        const response = await fetch('/api/advice');
+        const data = await response.json();
+        displayBubble(data.content);
+    } catch (error) {
+        console.error('Erreur lors de la récupération du conseil d\'investissement :', error);
+    }
+}
+
+function displayBubble(content) {
+    const bubble = document.createElement('div');
+    bubble.classList.add('response-box');
+    bubble.innerHTML = content;
+    document.body.appendChild(bubble);
+    setTimeout(() => bubble.remove(), 5000); // Supprime la bulle après 5 secondes
+}
+
+        function displayStartupInfo(startup) {
+            const infoBox = document.getElementById('infoBox');
+            infoBox.innerHTML = `<h2>Startup la plus prometteuse :</h2>
+                                 <p><strong>Nom :</strong> ${startup.nom}</p>
+                                 <p><strong>Description :</strong> ${startup.description}</p>
+                                 <p><strong>Financement :</strong> ${startup.financement}</p>
+                                 <p><strong>Partenaires :</strong> ${startup.partenaires}</p>`;
+        }
+
+        function displayInvestmentAdvice(advice) {
+            const infoBox = document.getElementById('infoBox');
+            infoBox.innerHTML = `<h2>Conseil d'investissement :</h2>
+                                 <p>${advice}</p>`;
+        }
+
+        function initMap() {
+            // Votre code Leaflet ici...
+        }
+
+        function displayMarkerInfo(markerInfo) {
+            // Votre fonction pour afficher les informations du marqueur ici...
+        }
+
+        initMap();
+        
+        // Sélectionnez le menu
+        var menu = document.getElementById('menu');
+
+        // Variables pour stocker la position de la souris lors du clic
+        var offsetX, offsetY;
+
+        // Événement de souris pour détecter le clic et le déplacement du menu
+        menu.addEventListener('mousedown', function(e) {
+            // Obtenir les coordonnées de la souris au moment du clic
+            offsetX = e.clientX - menu.offsetLeft;
+            offsetY = e.clientY - menu.offsetTop;
+
+            // Événement de déplacement de la souris
+            document.addEventListener('mousemove', moveMenu);
+
+            // Événement de relâchement de la souris
+            document.addEventListener('mouseup', function() {
+                // Supprimer les écouteurs d'événements lors du relâchement de la souris
+                document.removeEventListener('mousemove', moveMenu);
+            });
+        });
+
+        // Fonction pour mettre à jour la position du menu en fonction des coordonnées de la souris
+        function moveMenu(e) {
+            // Calculer la nouvelle position du menu en fonction de la position de la souris
+            var newLeft = e.clientX - offsetX;
+            var newTop = e.clientY - offsetY;
+
+            // Vérifier les limites de la fenêtre
+            if (newLeft < 0) {
+                newLeft = 0;
+            }
+            if (newTop < 0) {
+                newTop = 0;
+            }
+            if (newLeft + menu.offsetWidth > window.innerWidth) {
+                newLeft = window.innerWidth - menu.offsetWidth;
+            }
+            if (newTop + menu.offsetHeight > window.innerHeight) {
+                newTop = window.innerHeight - menu.offsetHeight;
+            }
+
+            // Mettre à jour la position du menu
+            menu.style.left = newLeft + 'px';
+            menu.style.top = newTop + 'px';
+        }
+    </script>
+</body>
+</html>
